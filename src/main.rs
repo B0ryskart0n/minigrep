@@ -9,20 +9,18 @@ fn main() {
     let pattern = &args[1];
     let files = &args[2..];
 
-    files.iter().for_each(|file: &String| {
-        search(file, pattern);
-    });
+    files
+        .iter()
+        .for_each(|file: &String| match std::fs::read_to_string(file) {
+            Err(e) => eprintln!("Can't read contents of {file}: {e}"),
+            Ok(contents) => search(&contents, pattern),
+        });
 }
 
-fn search(file: &String, pattern: &String) {
-    match std::fs::read_to_string(file) {
-        Err(e) => eprintln!("Can't read contents of {file}: {e}"),
-        Ok(contents) => {
-            contents.lines().for_each(|line| {
-                if line.contains(pattern) {
-                    println!("{line}");
-                }
-            });
+fn search(contents: &String, pattern: &String) {
+    contents.lines().for_each(|line| {
+        if line.contains(pattern) {
+            println!("{line}");
         }
-    }
+    })
 }
