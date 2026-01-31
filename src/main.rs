@@ -1,28 +1,25 @@
-use regex::Regex;
-
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     if args.len() < 3 {
-        panic!("Too few arguments. Expected PATTERN and at least one FILE.")
+        eprintln!("Too few arguments. Expected PATTERN and at least one FILE.");
+        std::process::exit(1);
     }
 
     let pattern = &args[1];
-    let re = Regex::new(&pattern).expect("Can't create regex from given PATTERN");
-
     let files = &args[2..];
 
     files.iter().for_each(|file: &String| {
-        search(file, &re);
+        search(file, pattern);
     });
 }
 
-fn search(file: &String, re: &Regex) {
+fn search(file: &String, pattern: &String) {
     match std::fs::read_to_string(file) {
         Err(e) => eprintln!("Can't read contents of {file}: {e}"),
         Ok(contents) => {
             contents.lines().for_each(|line| {
-                if re.is_match(line) {
+                if line.contains(pattern) {
                     println!("{line}");
                 }
             });
