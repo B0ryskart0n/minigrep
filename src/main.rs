@@ -1,3 +1,5 @@
+use regex::Regex;
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
@@ -6,16 +8,24 @@ fn main() {
     }
 
     let pattern = &args[1];
+    let re = Regex::new(&pattern).expect("Can't create regex from given PATTERN");
+
     let files = &args[2..];
 
     files.iter().for_each(|file: &String| {
-        search(file, pattern);
+        search(file, &re);
     });
 }
 
-fn search(file: &String, pattern: &String) {
+fn search(file: &String, re: &Regex) {
     match std::fs::read_to_string(file) {
         Err(e) => eprintln!("Can't read contents of {file}: {e}"),
-        Ok(contents) => println!("{pattern}\n{contents}"),
+        Ok(contents) => {
+            contents.lines().for_each(|line| {
+                if re.is_match(line) {
+                    println!("{line}");
+                }
+            });
+        }
     }
 }
